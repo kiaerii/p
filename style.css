@@ -1,0 +1,443 @@
+/* ==========================================================================
+   style.css — оформление интерфейса Habr RAG
+   Подключается в app.py функцией load_css().
+   Чтобы поменять внешний вид, достаточно изменить цвета в блоке «ЦВЕТА» ниже.
+   Разделы файла:
+     1. ЦВЕТА          5. КНОПКИ (быстрые вопросы, «Задать вопрос →»)
+     2. ОБЩЕЕ          6. КАРТОЧКИ (ответ, ссылки, чанки)
+     3. БОКОВАЯ ПАНЕЛЬ 7. ИСТОРИЯ ЗАПРОСОВ
+     4. ПОЛЕ ВВОДА
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. ЦВЕТА — меняйте здесь
+   ========================================================================== */
+:root {
+  /* фон-градиент страницы: чёрный → тёмно-бирюзовый → тёмно-фиолетовый */
+  --bg-start: #060a10;
+  --bg-middle: #0b2128;
+  --bg-end: #2a1f3d;
+
+  /* кнопка «Задать вопрос» (градиент) и акценты */
+  --btn-start: #14b8a6;
+  --btn-end: #ec4899;
+  --accent: #2dd4bf;
+  --accent-light: #99f6e4;
+  --text-title: #99f6e4;
+
+  /* заголовок «Habr RAG» (градиентный текст) и полоса у карточки ответа */
+  --title-from: #5eead4;
+  --title-to: #f9a8d4;
+  --answer-border: #2dd4bf;
+
+  /* цвета в формате R, G, B — для полупрозрачных элементов */
+  --chip-rgb: 153, 246, 228;   /* быстрые вопросы */
+  --glow-rgb: 20, 184, 166;    /* свечение кнопки «Задать вопрос» */
+  --accent-rgb: 45, 212, 191;  /* метка FAISS */
+
+  /* «стекло» — полупрозрачные панели и рамки */
+  --glass: rgba(255, 255, 255, .07);
+  --glass-strong: rgba(255, 255, 255, .09);
+  --glass-border: rgba(255, 255, 255, .13);
+}
+
+
+/* ==========================================================================
+   2. ОБЩЕЕ — фон, скрытые элементы Streamlit, заголовок страницы
+   ========================================================================== */
+
+/* скрываем стандартное меню и подвал Streamlit */
+#MainMenu,
+footer {
+  visibility: hidden;
+}
+
+/* верхняя полоса прозрачная, чтобы был виден градиент */
+header[data-testid="stHeader"] {
+  background: transparent;
+}
+
+/* фон всей страницы */
+.stApp {
+  background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-middle) 50%, var(--bg-end) 100%) !important;
+  background-attachment: fixed !important;
+}
+
+/* ширина и верхний отступ основной части */
+.block-container {
+  max-width: 1100px;
+  padding-top: 2.2rem;
+}
+
+/* заголовок «Habr RAG» с градиентным текстом */
+h1.title {
+  font-size: 2.3rem;
+  margin: 0 0 4px 0;
+}
+
+h1.title span {
+  background: linear-gradient(90deg, var(--title-from), var(--title-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.subtitle {
+  opacity: .65;
+  font-size: .95rem;
+  margin-bottom: 1.3rem;
+}
+
+
+/* ==========================================================================
+   3. БОКОВАЯ ПАНЕЛЬ — настройки и плитки статистики
+   ========================================================================== */
+[data-testid="stSidebar"] {
+  background: rgba(255, 255, 255, .05) !important;
+  border-right: 1px solid rgba(255, 255, 255, .10);
+}
+
+/* сетка плиток статистики: статей, чанков, разделов, размер */
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 10px;
+}
+
+.st {
+  background: rgba(255, 255, 255, .07);
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 11px;
+  padding: 10px;
+}
+
+.st b {
+  display: block;
+  font-size: 1.2rem;
+}
+
+.st span {
+  font-size: .72rem;
+  opacity: .65;
+}
+
+
+/* ==========================================================================
+   4. ПОЛЕ ВВОДА — строка вопроса, выпадающие списки, теги разделов
+   ========================================================================== */
+.stTextInput input,
+[data-baseweb="select"] > div,
+[data-baseweb="input"] {
+  background: var(--glass-strong) !important;
+  border: 1px solid rgba(255, 255, 255, .18) !important;
+  border-radius: 12px !important;
+  color: #fff !important;
+}
+
+/* строка вопроса чуть крупнее */
+.stTextInput input {
+  padding: 14px 16px !important;
+  font-size: 1rem !important;
+}
+
+/* выбранные разделы (хабы) в виде «таблеток» */
+[data-baseweb="tag"] {
+  background: var(--accent) !important;
+  border-radius: 999px !important;
+}
+
+
+/* ==========================================================================
+   5. КНОПКИ
+   ========================================================================== */
+
+/* 5.1. Быстрые вопросы («чипы») — обычные кнопки Streamlit */
+.stButton > button {
+  background: rgba(var(--chip-rgb), .14);
+  border: 1px solid rgba(var(--chip-rgb), .35);
+  color: #dfe3ff;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: .82rem;
+  padding: .3rem .9rem;
+  transition: all .2s ease;
+}
+
+.stButton > button:hover {
+  background: rgba(var(--chip-rgb), .30);
+  border-color: var(--accent-light);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* 5.2. Главная кнопка «Задать вопрос →» (внутри формы поиска) */
+[data-testid="stForm"] {
+  border: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+[data-testid="stForm"] button {
+  background: linear-gradient(90deg, var(--btn-start), var(--btn-end)) !important;
+  border: 0 !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  padding: .72rem 1rem .72rem 1.4rem !important;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(var(--glow-rgb), .5);
+  transition: all .2s ease;
+}
+
+/* стрелка «→» в квадратике справа от текста */
+[data-testid="stForm"] button p::after {
+  content: "→";
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-left: 10px;
+  background: rgba(255, 255, 255, .24);
+  border-radius: 8px;
+  transition: transform .2s ease;
+}
+
+/* при наведении: кнопка приподнимается, стрелка сдвигается */
+[data-testid="stForm"] button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(var(--glow-rgb), .7);
+}
+
+[data-testid="stForm"] button:hover p::after {
+  transform: translateX(4px);
+}
+
+/* 5.3. Кнопка «Очистить» в истории — красноватая */
+.st-key-clear_hist button {
+  background: rgba(239, 68, 68, .22) !important;
+  border: 1px solid rgba(239, 68, 68, .45) !important;
+  color: #fecaca !important;
+}
+
+
+/* ==========================================================================
+   6. КАРТОЧКИ — ответ, ссылки на статьи, использованные чанки
+   ========================================================================== */
+
+/* плавное появление карточек */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* общий вид карточки («стекло») */
+.card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin: 16px 0;
+  backdrop-filter: blur(6px);
+  animation: fadeUp .5s ease both;
+}
+
+.card h2 {
+  font-size: 1.05rem;
+  margin: 0 0 12px 0;
+  padding: 0;
+}
+
+/* 6.1. Карточка ответа — с фиолетовой полосой слева */
+.answer {
+  border-left: 4px solid var(--answer-border);
+}
+
+.answer p {
+  line-height: 1.7;
+  font-size: 1rem;
+  margin: 0;
+  color: #f1eeff;
+}
+
+/* 6.2. Ссылки на статьи */
+.src {
+  display: block;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255, 255, 255, .10);
+  text-decoration: none;
+}
+
+/* у первой ссылки линия сверху не нужна */
+.card h2 + .src {
+  border-top: 0;
+}
+
+.src b {
+  display: block;
+  color: var(--text-title);
+}
+
+.src span {
+  font-size: .8rem;
+  opacity: .6;
+  color: #e9e7ff;
+}
+
+/* 6.3. Чанки (найденные фрагменты текста) */
+.chunk {
+  background: rgba(0, 0, 0, .25);
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 11px;
+  padding: 13px 16px;
+  margin-top: 10px;
+}
+
+/* верхняя строка чанка: «Фрагмент 1», метки, релевантность */
+.ch {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+  font-size: .9rem;
+}
+
+/* метки способа поиска: FAISS (синяя) и BM25 (жёлтая) */
+.tag {
+  font-style: normal;
+  font-size: .72rem;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(var(--accent-rgb), .35);
+  color: var(--text-title);
+}
+
+.t2 {
+  background: rgba(251, 191, 36, .22);
+  color: #fde68a;
+}
+
+/* полоска релевантности */
+.rel {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .75rem;
+}
+
+.bar {
+  width: 90px;
+  height: 7px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .15);
+  overflow: hidden;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #22d3ee, #a78bfa);
+}
+
+/* текст самого чанка */
+.pre {
+  font: .82rem/1.65 Consolas, monospace;
+  color: #d8d4f5;
+  margin: 0;
+}
+
+/* подсветка слов из запроса */
+mark {
+  background: rgba(250, 204, 21, .35);
+  color: #fff;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+/* строка под чанком: ссылка, ID, раздел, автор, дата */
+.cmeta {
+  font-size: .75rem;
+  opacity: .7;
+  margin-top: 9px;
+}
+
+.cmeta a,
+.is a {
+  color: var(--accent-light);
+  text-decoration: none;
+}
+
+
+/* ==========================================================================
+   7. ИСТОРИЯ ЗАПРОСОВ
+   ========================================================================== */
+
+/* одна запись истории */
+.item {
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 12px;
+  padding: 12px 15px;
+  margin-top: 9px;
+  background: rgba(255, 255, 255, .05);
+}
+
+/* вопрос и время справа */
+.it {
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.it span {
+  font-weight: 500;
+  font-size: .75rem;
+  opacity: .55;
+  white-space: nowrap;
+}
+
+/* краткий ответ */
+.ia {
+  font-size: .85rem;
+  line-height: 1.5;
+  opacity: .78;
+  margin-top: 5px;
+}
+
+/* ссылки на источники */
+.is {
+  font-size: .75rem;
+  margin-top: 6px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* «Показать полный ответ» */
+details summary {
+  cursor: pointer;
+  font-size: .78rem;
+  color: var(--accent-light);
+  margin-top: 6px;
+}
+
+.full {
+  font-size: .85rem;
+  line-height: 1.6;
+  margin-top: 6px;
+  opacity: .9;
+}
